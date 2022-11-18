@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/products', function () {
-    return 'products';
+    return products::all();
 });
 
 Route::post('/products', function (Request $request) {
