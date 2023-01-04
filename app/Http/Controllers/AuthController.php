@@ -15,37 +15,59 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $fields = $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
+            'password' => 'required|string|confirmed|max:30|min:6',
+            'password_confirmation' => 'required|string'
         ]);
+        if ($request->validator && $request->validator->errors()) {
+            $errors = $request->validator->errors();
+            $errorMessages = [];
+            $passwordLength = strlen($validatedData['password']);
+        
+            if ($errors->has('name')) {
+                $errorMessages['name'] = $errors->first('name');
+            }
+            if ($errors->has('email')) {
+                $errorMessages['email'] = $errors->first('email');
+            }
+            if ($errors->has('password')) {
+                $passwordError = $errors->first('password');
+                if ($passwordError == 'The password confirmation does not match.') {
+                    $errorMessages['password_confirmation'] = $passwordError;
+                }
+            }
+            if (count($errorMessages) > 0) {
+                return response()->json(['errors' => $errorMessages], 422);
+            }
 
+        }  
         $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password'])
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => bcrypt($validatedData['password'])
         ]);
-        // $token = $user->create
     }
     public function login(Request $request)
     {
-        if(!Auth::attempt($request->only('email', 'password'))){
-            return response([
-                'message' => 'Invalid credentials'
-            ], Response::HTTP_UNAUTHORIZED);
+        $credentials = $request->only('email', 'password');
+        $user = User::where('email', $credentials['email'])->first();
+        if (!$user) {
+            return response()->json(['error' => 'Account with this email does not exist'], 404);
         }
-        else{
-            $user = Auth::user();
-            $token = $user->createToken('token')->plainTextToken;
-            
-            $cookie = cookie('jwt', $token, 60 * 24); // 1 day
-
-            return Response([
-                'message' => 'Success'
-            ])->withCookie($cookie);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['error' => 'Wrong password'], 401);
         }
-
+        $passwordLength = strlen($credentials['password']);
+        if ($passwordLength < 6 || $passwordLength > 30) {
+            return response()->json(['error' => 'The password must be between 6 and 30 characters'], 422);
+        }
+        $token = $user->createToken('token')->plainTextToken;
+        $cookie = cookie('jwt', $token, 60 * 24); // 1 day
+        return Response([
+            'message' => 'Success'
+        ])->withCookie($cookie);
     }
     public function logout(Request $request)
     {
