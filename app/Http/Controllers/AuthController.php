@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Cookie;
 
 
 
-
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -64,10 +63,16 @@ class AuthController extends Controller
             return response()->json(['error' => 'The password must be between 6 and 30 characters'], 422);
         }
         $token = $user->createToken('token')->plainTextToken;
-        $cookie = cookie('jwt', $token, 60 * 24); // 1 day
-        return Response([
-            'message' => 'Success'
-        ])->withCookie($cookie);
+        // $cookie = cookie('jwt', $token, 60 * 24); // 1 day
+        $response = [
+            'token' => $token,
+            'user' => $user
+        ];
+        return $response;
+
+        // return Response([
+        //     'message' => 'Success'
+        // ])->withCookie($cookie);
     }
     public function logout(Request $request)
     {
@@ -78,6 +83,10 @@ class AuthController extends Controller
     }
     public function user()
     {
+        if(Auth::guest())
+        {
+            return redirect()->route('/login');
+        }
         return Auth::user();
     }
 }
