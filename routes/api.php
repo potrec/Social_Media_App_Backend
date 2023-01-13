@@ -21,17 +21,27 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/createpost', [PostController::class, 'postCreatePost']);
-Route::get('/getposts', [PostController::class, 'getPosts']);
+// Route::post('/createpost', [PostController::class, 'postCreatePost']);
+
+// Route::get('/getposts/innerJoin', [PostController::class, 'innerJoin']);
 // Route::get('/user', [UserController::class, 'getUser']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/home', [UserController::class, 'getUser']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/getuser/{id}', [UserController::class, 'getUserNameById']);
+    Route::get('/getposts', [PostController::class, 'getPosts']);
+
+
+    Route::post('/createpost', [PostController::class, 'postCreatePost']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+
+    Route::delete('/posts/{id}', [PostController::class, 'deletePost']);
+
+    Route::put('/posts/{id}', [PostController::class, ' updatePost']);
+    
     
 });
-
 
 
 // //Public routes
