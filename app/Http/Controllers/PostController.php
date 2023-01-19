@@ -78,5 +78,9 @@ class PostController extends Controller
             'message' => 'Post not found'
         ],404);
     
-}
+    }
+    public function reactionLike(Request $request, $id){
+        $post = Post::find($id);
+        
+    }
 }
