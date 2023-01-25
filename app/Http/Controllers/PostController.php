@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Post;
+use App\Models\Like;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
@@ -24,12 +25,6 @@ class PostController extends Controller
             'message' => 'Success'
         ]);
     }
-
-    // public function getPosts(Request $request)
-    // {
-    //     $posts = DB::table('posts')->get();
-    //     return $posts;
-    // }
     public function getPosts(Request $request)
     {
         $result = DB::table('posts')->join('users', 'users.id', '=', 'posts.user_id')->select('posts.id','users.name','posts.user_id','users.email','posts.parent_id','posts.messageContent','posts.created_at','posts.updated_at')->orderBy('posts.updated_at','desc')->get();
@@ -79,8 +74,76 @@ class PostController extends Controller
         ],404);
     
     }
-    public function reactionLike(Request $request, $id){
-        $post = Post::find($id);
+    public function likePost(Request $request){
+        $post_id= $request['post_id'];
+        $is_like= $request['like'];
+        $update = false;
+        $post = Post::find($post_id);
+        if (!$post)
+        {
+            return response()->json(['message' => 'No post found'], 406);
+        }
+        $user = Auth::user();
+        $like = $user->likes()->where('post_id', $post_id)->first();
+        if($like)
+        {
+            $already_like = $like->like;
+            $update = true;
+            if ($already_like == $is_like)
+            {
+                $like->delete();
+                return response()->json(['message' => 'Post reaction deleted'], 200);
+            }
+        }
+        else
+        {
+            $like = new Like();
+        }
+        $like->like = $is_like;
+        $like->user_id = $user->id;
+        $like->post_id = $post->id;
+        if($update)
+        {
+            $like->update();
+            return response()->json(['message' => 'Post reaction updated'], 200);
+        }
+        else
+        {
+            $like->save();
+            return response()->json(['message' => 'Post reaction created'], 200);
+        }
         
+    }
+    public function countLikePosts(Request $request)
+    {
+        $post_id= $request['post_id'];
+        $result_likes = DB::table('likes')->where('like', true)->where('post_id',$post_id)->count();
+        $result_dislikes = DB::table('likes')->where('like', false)->where('post_id',$post_id)->count();
+        return response()->json(['likes_count' => $result_likes,
+                                 'dislikes_count' => $result_dislikes], 200);
+    }
+    public function isLikedByUser(Request $request)
+    {
+        $post_id = $request['post_id'];
+        $user = Auth::user();
+        $user_id = $user['id'];
+        $checkTable = DB::table('likes')->where('post_id',$post_id)->where('user_id',$user_id)->first();
+        if(!$checkTable)
+        {
+            return response()->json(['message' => 'post not found'], 200);
+        }
+        else
+        {
+            $like = $checkTable->like;
+            if($like == 1)
+            {
+                return response()->json(['message' => 1], 200);
+            }
+            else
+            {
+                return response()->json(['message' => 0],200);
+            }
+        }
+        return response()->json(['message' => $checkTable],200);
     }
 }

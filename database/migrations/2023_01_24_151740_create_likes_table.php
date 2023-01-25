@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        //
-        Schema::create('posts_reactions', function (Blueprint $table) {
-            $table->id('posts_id');
+        Schema::create('likes', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
             $table->integer('user_id');
-            $table->integer('like_count')->nullable();
-            $table->integer('dislike_count')->nullable();
+            $table->integer('post_id');
+            $table->boolean('like');
         });
     }
 
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('likes');
     }
 };
