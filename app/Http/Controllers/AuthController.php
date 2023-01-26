@@ -62,24 +62,26 @@ class AuthController extends Controller
         if ($passwordLength < 6 || $passwordLength > 30) {
             return response()->json(['error' => 'The password must be between 6 and 30 characters'], 422);
         }
+        $user->tokens()->where('tokenable_id', $user['id'])->delete();
         $token = $user->createToken('token')->plainTextToken;
-        // $cookie = cookie('jwt', $token, 60 * 24); // 1 day
         $response = [
             'token' => $token,
             'user' => $user
         ];
         return $response;
-
-        // return Response([
-        //     'message' => 'Success'
-        // ])->withCookie($cookie);
     }
     public function logout(Request $request)
     {
-        $cookie = Cookie::forget('jwt');
-        return Response([
-            'message' => 'Success'
-        ])->withCookie($cookie);
+        $user = User::Auth();
+        if(!$user)
+        {
+            return response()->json(['error' => 'No user found'], 422);
+        }
+        $user->tokens()->where('tokenable_id', $user['id'])->delete();
+        $response = [
+            'message' => 'Logout successful',
+        ];   
+        return $response;
     }
     public function user()
     {

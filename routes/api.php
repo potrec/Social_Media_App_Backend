@@ -30,13 +30,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/getuser/{id}', [UserController::class, 'getUserNameById']);
     Route::get('/getposts', [PostController::class, 'getPosts']);
-
+    Route::get('/getposts/comments/{id}', [PostController::class, 'getComments']);
+    Route::get('/getposts/comments/count/{id}', [PostController::class, 'getCommentsCount']);
 
     Route::post('/createpost', [PostController::class, 'postCreatePost']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/reaction/like', [PostController::class, 'likePost']);
     Route::post('/reaction/like/check', [PostController::class, 'isLikedByUser']);
     Route::post('/reaction/like/count', [PostController::class, 'countLikePosts']);
+    Route::post('/post/comment/create',[PostController::class, 'createPostComment']);
 
     Route::delete('/posts/{id}', [PostController::class, 'deletePost']);
 

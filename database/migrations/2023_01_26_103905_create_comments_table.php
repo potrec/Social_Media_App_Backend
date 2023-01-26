@@ -13,8 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        //
-        Schema::create('posts_comments', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
             $table->integer('post_id');
@@ -30,7 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        //
-        Schema::drop('posts_comments');
+        Schema::dropIfExists('comments');
     }
 };

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\Like;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
@@ -34,9 +35,13 @@ class PostController extends Controller
         $post = Post::find($id);
         if($post) {
             if($post->user_id == auth()->user()->id) {
+                $user = Auth::user();
+                $id_array = [$id];
+                $like = DB::table('likes')->whereIn('post_id', $id_array)->delete();
+                $comment = DB::table('comments')->whereIn('post_id', $id_array)->delete();
                 $post->delete();
                 return Response([
-                    'message' => 'Success'
+                    'message' => 'Success deleted:'
                 ]);
             }
             return Response([
@@ -145,5 +150,32 @@ class PostController extends Controller
             }
         }
         return response()->json(['message' => $checkTable],200);
+    }
+    public function createPostComment(Request $request)
+    {
+        $post_id = $request['post_id'];
+        $messageContent = $request['messageContent'];
+        if($messageContent == '')
+        {
+            return response()->json(['error' => 'no text in comment'],400);
+        }
+        $user = Auth::user();
+        $comment = new Comment;
+        $comment-> user_id = $user->id;
+        $comment-> post_id = $post_id;
+        $comment-> messageContent = $messageContent;
+        $comment->save();
+        return response()->json(['message' => $comment],200);
+
+    }
+    public function getComments($id)
+    {
+        $result = DB::table('comments')->join('users', 'users.id', '=', 'comments.user_id')
+        ->select('comments.id','comments.post_id','users.name','comments.user_id','users.email','comments.messageContent','comments.created_at','comments.updated_at')->where('comments.post_id',$id)->orderBy('comments.created_at','asc')->get();
+        return $result;
+    }
+    public function getCommentsCount($id)
+    {
+        return $result = DB::table('comments')->where('post_id',$id)->orderBy('created_at','asc')->count();
     }
 }
