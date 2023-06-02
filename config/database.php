@@ -92,6 +92,11 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => 'mongodb+srv://potrec:ZJqV9hs5CbR3o9xs@cluster0.ep2yn6l.mongodb.net/?retryWrites=true&w=majority',
+            'database' => env('DB_DATABASE', 'potrec'),
+        ],
 
     ],
 

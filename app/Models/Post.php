@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
-class Post extends Model
+class Post extends Eloquent
 {
     use HasFactory;
     protected $fillable = ['user_id', 'parent_id', 'body'];

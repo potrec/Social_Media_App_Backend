@@ -40,13 +40,15 @@ class AuthController extends Controller
             if (count($errorMessages) > 0) {
                 return response()->json(['errors' => $errorMessages], 422);
             }
-
-        }  
+            
+        }
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password'])
         ]);
+        return $validatedData;
+
     }
     public function login(Request $request)
     {
@@ -63,25 +65,26 @@ class AuthController extends Controller
             return response()->json(['error' => 'The password must be between 6 and 30 characters'], 422);
         }
         $user->tokens()->where('tokenable_id', $user['id'])->delete();
-        $token = $user->createToken('token')->plainTextToken;
-        $response = [
-            'token' => $token,
-            'user' => $user
-        ];
-        return $response;
+        //$token = $user->createToken('token')->plainTextToken;
+        // $response = [
+        //     'token' => $token,
+        //     'user' => $user
+        // ];
+        return $user;
     }
     public function logout(Request $request)
     {
-        $user = User::Auth();
-        if(!$user)
-        {
-            return response()->json(['error' => 'No user found'], 422);
-        }
-        $user->tokens()->where('tokenable_id', $user['id'])->delete();
-        $response = [
-            'message' => 'Logout successful',
-        ];   
-        return $response;
+        // $user = User::Auth();
+        // if(!$user)
+        // {
+        //     return response()->json(['error' => 'No user found'], 422);
+        // }
+        // $user->tokens()->where('tokenable_id', $user['id'])->delete();
+        // $response = [
+        //     'message' => 'Logout successful',
+        // ];   
+        // return $response;
+        return auth()->guard('web')->logout();
     }
     public function user()
     {
