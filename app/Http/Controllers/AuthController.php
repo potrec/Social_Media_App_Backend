@@ -65,12 +65,12 @@ class AuthController extends Controller
             return response()->json(['error' => 'The password must be between 6 and 30 characters'], 422);
         }
         $user->tokens()->where('tokenable_id', $user['id'])->delete();
-        //$token = $user->createToken('token')->plainTextToken;
-        // $response = [
-        //     'token' => $token,
-        //     'user' => $user
-        // ];
-        return $user;
+        $token = $user->createToken('token')->plainTextToken;
+        $response = [
+            'token' => $token,
+            'user' => $user
+        ];
+        return $response;
     }
     public function logout(Request $request)
     {
