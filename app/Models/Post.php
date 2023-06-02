@@ -8,6 +8,8 @@ use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 class Post extends Eloquent
 {
     use HasFactory;
+    protected $connection = 'mongodb';
+    protected $collection = 'posts';
     protected $fillable = ['user_id', 'parent_id', 'body'];
     
     /**

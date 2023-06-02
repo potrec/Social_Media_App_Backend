@@ -10,7 +10,7 @@ use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
+use Jenssegers\Mongodb\Facades\DB;
 
 
 class PostController extends Controller
@@ -28,8 +28,7 @@ class PostController extends Controller
     }
     public function getPosts(Request $request)
     {
-        $result = DB::table('posts')->join('users', 'users.id', '=', 'posts.user_id')->select('posts.id','users.name','posts.user_id','users.email','posts.parent_id','posts.messageContent','posts.created_at','posts.updated_at')->orderBy('posts.updated_at','desc')->get();
-        return $result;
+        return Post::all();
     }
     public function deletePost($id) {
         $post = Post::find($id);
