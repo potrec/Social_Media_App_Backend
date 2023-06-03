@@ -10,8 +10,7 @@ use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
-use Jenssegers\Mongodb\Facades\DB;
-
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -36,8 +35,8 @@ class PostController extends Controller
             if($post->user_id == auth()->user()->id) {
                 $user = Auth::user();
                 $id_array = [$id];
-                $like = DB::table('likes')->whereIn('post_id', $id_array)->delete();
-                $comment = DB::table('comments')->whereIn('post_id', $id_array)->delete();
+                $like = DB::collection('likes')->whereIn('post_id', $id_array)->delete();
+                $comment = DB::collection('comments')->whereIn('post_id', $id_array)->delete();
                 $post->delete();
                 return Response([
                     'message' => 'Success deleted:'
@@ -121,8 +120,8 @@ class PostController extends Controller
     public function countLikePosts(Request $request)
     {
         $post_id= $request['post_id'];
-        $result_likes = DB::table('likes')->where('like', true)->where('post_id',$post_id)->count();
-        $result_dislikes = DB::table('likes')->where('like', false)->where('post_id',$post_id)->count();
+        $result_likes = DB::collection('likes')->where('like', true)->where('post_id',$post_id)->count();
+        $result_dislikes = DB::collection('likes')->where('like', false)->where('post_id',$post_id)->count();
         return response()->json(['likes_count' => $result_likes,
                                  'dislikes_count' => $result_dislikes], 200);
     }
@@ -130,25 +129,13 @@ class PostController extends Controller
     {
         $post_id = $request['post_id'];
         $user = Auth::user();
-        $user_id = $user['id'];
-        $checkTable = DB::table('likes')->where('post_id',$post_id)->where('user_id',$user_id)->first();
+        $user_id = $user->id;
+        $checkTable = DB::collection('likes')->where('post_id',$post_id)->where('user_id',$user_id)->first();
         if(!$checkTable)
         {
-            return response()->json(['message' => 'post not found'], 200);
+            return response()->json(['message' => 'post not found'], 406);
         }
-        else
-        {
-            $like = $checkTable->like;
-            if($like == 1)
-            {
-                return response()->json(['message' => 1], 200);
-            }
-            else
-            {
-                return response()->json(['message' => 0],200);
-            }
-        }
-        return response()->json(['message' => $checkTable],200);
+        return response()->json(['message' => $checkTable['like']], 200);
     }
     public function createPostComment(Request $request)
     {
@@ -169,12 +156,12 @@ class PostController extends Controller
     }
     public function getComments($id)
     {
-        $result = DB::table('comments')->join('users', 'users.id', '=', 'comments.user_id')
+        $result = DB::collection('comments')->join('users', 'users.id', '=', 'comments.user_id')
         ->select('comments.id','comments.post_id','users.name','comments.user_id','users.email','comments.messageContent','comments.created_at','comments.updated_at')->where('comments.post_id',$id)->orderBy('comments.created_at','asc')->get();
         return $result;
     }
     public function getCommentsCount($id)
     {
-        return $result = DB::table('comments')->where('post_id',$id)->orderBy('created_at','asc')->count();
+        return $result = DB::collection('comments')->where('post_id',$id)->orderBy('created_at','asc')->count();
     }
 }
