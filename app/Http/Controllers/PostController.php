@@ -25,10 +25,36 @@ class PostController extends Controller
             'message' => 'Success'
         ]);
     }
+    private function statusOfThePost($user_id, $post_id)
+    {
+        $likes = DB::collection('likes')->where('post_id',$post_id)->where('user_id',$user_id)->first();
+        if($likes)
+        {
+            return $likes['like'];
+        }
+        return $likes;
+    }
+    private function countReactionsOfThePost($post_id)
+    {
+        $result_likes = DB::collection('likes')->where('like', true)->where('post_id',$post_id)->count();
+        $result_dislikes = DB::collection('likes')->where('like', false)->where('post_id',$post_id)->count();
+        return([$result_likes,
+            $result_dislikes]);
+    }
     public function getPosts(Request $request)
     {
-        return Post::all();
+        $user = Auth::user();
+        $posts = Post::all();
+        foreach ($posts as $post) 
+        {
+            $is_liked = self::statusOfThePost($user->id, $post->id);
+            $reactions_count = self::countReactionsOfThePost($post->id);
+            $post['reactionStatus'] = $is_liked;
+            $post['reactionsCount'] = $reactions_count;
+        }
+        return $posts;
     }
+    
     public function deletePost($id) {
         $post = Post::find($id);
         if($post) {
