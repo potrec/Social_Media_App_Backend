@@ -182,10 +182,17 @@ class PostController extends Controller
     }
     public function getComments($id)
     {
-        $result = DB::collection('comments')->join('users', 'users.id', '=', 'comments.user_id')
-        ->select('comments.id','comments.post_id','users.name','comments.user_id','users.email','comments.messageContent','comments.created_at','comments.updated_at')->where('comments.post_id',$id)->orderBy('comments.created_at','asc')->get();
-        return $result;
+        //$result = DB::collection('comments')->where('post_id', $id)->orderBy('created_at', 'asc')->get()->toArray();
+        $result = Comment::all();
+        $result = $result ->where('post_id', $id);
+        foreach ($result as &$comment) {
+            $name = DB::collection('users')->where('_id', $comment['user_id'])->first();
+            $comment['name'] = $name['name'];
+        }
+
+        return response()->json($result->values());
     }
+
     public function getCommentsCount($id)
     {
         return $result = DB::collection('comments')->where('post_id',$id)->orderBy('created_at','asc')->count();
