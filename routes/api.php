@@ -25,7 +25,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Route::get('/getposts/innerJoin', [PostController::class, 'innerJoin']);
 // Route::get('/user', [UserController::class, 'getUser']);
-Route::middleware('auth:sanctum')->group(function () {
+Route::controller(AuthController::class)->group(function () {
     Route::get('/home', [UserController::class, 'getUser']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/getuser/{id}', [UserController::class, 'getUserNameById']);
