@@ -1,1 +1,1 @@
-Laravel + sqlite Backend for the Social media app.
+Laravel + mongoDB Backend for the Social media app.
