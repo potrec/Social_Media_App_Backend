@@ -44,18 +44,27 @@ class PostController extends Controller
     public function getPosts(Request $request)
     {
         $user = Auth::user();
-        $posts = Post::all();
-        foreach ($posts as $post) 
-        {
+        $posts = Post::orderBy('created_at', 'desc')->get();
+    
+        foreach ($posts as $post) {
             $is_liked = self::statusOfThePost($user->id, $post->id);
             $reactions_count = self::countReactionsOfThePost($post->id);
             $post['reactionStatus'] = $is_liked;
             $post['reactionsCount'] = $reactions_count;
         }
+    
         return $posts;
     }
     
+    
     public function deletePost($id) {
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         $post = Post::find($id);
         if($post) {
             if($post->user_id == auth()->user()->id) {
@@ -78,6 +87,13 @@ class PostController extends Controller
     }
 
     public function updatePost(Request $request, $id) {
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         $post = Post::find($id);
         if($post){
             if($post->user_id == auth()->user()->id) {
@@ -104,6 +120,13 @@ class PostController extends Controller
     
     }
     public function likePost(Request $request){
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         $post_id= $request['post_id'];
         $is_like= $request['like'];
         $update = false;
@@ -145,6 +168,13 @@ class PostController extends Controller
     }
     public function countLikePosts(Request $request)
     {
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         $post_id= $request['post_id'];
         $result_likes = DB::collection('likes')->where('like', true)->where('post_id',$post_id)->count();
         $result_dislikes = DB::collection('likes')->where('like', false)->where('post_id',$post_id)->count();
@@ -153,6 +183,13 @@ class PostController extends Controller
     }
     public function isLikedByUser(Request $request)
     {
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         $post_id = $request['post_id'];
         $user = Auth::user();
         $user_id = $user->id;
@@ -165,6 +202,13 @@ class PostController extends Controller
     }
     public function createPostComment(Request $request)
     {
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         $post_id = $request['post_id'];
         $messageContent = $request['messageContent'];
         if($messageContent == '')
@@ -182,6 +226,13 @@ class PostController extends Controller
     }
     public function getComments($id)
     {
+        $user = Auth::user();
+        if(!$user)
+        {
+            return Response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         //$result = DB::collection('comments')->where('post_id', $id)->orderBy('created_at', 'asc')->get()->toArray();
         $result = Comment::all();
         $result = $result ->where('post_id', $id);

@@ -90,13 +90,6 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token,
             ]);
-        // $user->tokens()->where('tokenable_id', $user['id'])->delete();
-        // $token = $user->createToken('token')->plainTextToken;
-        // $response = [
-        //     'token' => $token,
-        //     'user' => $user
-        // ];
-        // return $response;
     }
     public function logout(Request $request)
     {

@@ -43,6 +43,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::delete('/posts/{id}', [PostController::class, 'deletePost']);
 
     Route::put('/posts/{id}', [PostController::class, ' updatePost']);
+    Route::post('/update/user', [UserController::class, 'updateUser']);
     
     
 });
